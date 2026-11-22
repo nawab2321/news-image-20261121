@@ -4,11 +4,11 @@ import json
 
 from PIL import Image
 
-from atlas import MARKERS, atlas, badge
+from cartography import POINTS, atlas, badge
 from graphics import (
-    COPPER, FOREST, INK, MUTED, PAPER, RED, ROOT, RULE, TEAL,
-    Canvas, climate_scene, hormuz_scene, ukraine_scene,
+    COPPER, FOREST, INK, MUTED, PAPER, RED, ROOT, RULE, TEAL, Canvas,
 )
+from illustrations import climate_scene, hormuz_scene, ukraine_scene
 
 LEFT = 34
 RIGHT = 990
@@ -45,26 +45,32 @@ def masthead(canvas):
 
 def lead_tag(canvas, x, y, story):
     color = REGIONS[story["region"]]
-    badge(canvas, x + 8, y + 9, MARKERS[story["id"]][0], color)
+    badge(canvas, x + 8, y + 9, POINTS[story["id"]][0], color)
     label = f'{story["category"]}  /  {story["location"]}'.upper()
     canvas.spaced(x + 22, y, label, 12.5, color, 1.06)
 
 
 def lead_stories(canvas, stories):
-    story = stories["cop31"]
-    lead_tag(canvas, LEFT, 139, story)
-    canvas.put(climate_scene(569, 161), LEFT, 163)
-    canvas.fit(LEFT, 331, story["headline"], "serif", 57, 569, min_size=49)
-    canvas.wrapped(LEFT + 2, 389, story["verified_summary"], "sans", 20, 553, 23, 2)
-    canvas.line([(618, 142), (618, 425)], RULE)
-    for story_id, top, scene in [("kryvyi-rih", 139, ukraine_scene),
-                                  ("hormuz", 284, hormuz_scene)]:
-        story = stories[story_id]
-        lead_tag(canvas, 635, top, story)
-        canvas.put(scene(), 880, top + 21)
-        canvas.wrapped(635, top + 22, story["headline"], "serif", 32, 235, 30, 2, INK)
-        canvas.wrapped(636, top + 85, story["verified_summary"], "sans", 16, 229, 17, 3)
-    canvas.line([(635, 275), (RIGHT, 275)], RULE)
+    lead = stories["cop31"]
+    lead_tag(canvas, LEFT, 139, lead)
+    canvas.put(climate_scene(568, 161), LEFT, 163)
+    canvas.fit(LEFT, 331, lead["headline"], "serif", 57, 569, min_size=49)
+    canvas.wrapped(LEFT + 2, 389, lead["verified_summary"], "sans", 20, 556, 23, 2)
+
+    left = 632
+    canvas.line([(617, 141), (617, 425)], RULE)
+    for story_id, top, illustration in [
+        ("kryvyi-rih", 139, ukraine_scene), ("hormuz", 282, hormuz_scene),
+    ]:
+        item = stories[story_id]
+        lead_tag(canvas, left, top, item)
+        canvas.put(illustration(), RIGHT - 110, top + 21)
+        headline = canvas.wrap_lines(item["headline"], "serif", 32, 235, 2)
+        canvas.draw_lines(left, top + 22, headline, "serif", 32, 30, INK)
+        deck_y = top + 26 + 30 * len(headline)
+        canvas.wrapped(left + 1, deck_y, item["verified_summary"], "sans", 16, 233, 17, 3)
+        canvas.text(RIGHT, top + 132, item["source_slug"], "bold", 8.5, MUTED, "rt")
+    canvas.line([(left, 279), (RIGHT, 279)], RULE)
 
 
 def news_atlas(canvas, stories):
@@ -73,7 +79,7 @@ def news_atlas(canvas, stories):
     canvas.spaced(819, 447, "THE DAY IN NUMBERS", 13, FOREST, 1.5)
     canvas.put(atlas(stories, REGIONS), LEFT, 473)
 
-    for position, story_id in enumerate(MARKERS):
+    for position, story_id in enumerate(POINTS):
         story = stories[story_id]
         x = 575 + (position // 4) * 116
         y = 477 + (position % 4) * 38
@@ -93,86 +99,91 @@ def news_atlas(canvas, stories):
     section_rule(canvas, 638, INK)
 
 
-def emblem(canvas, name, x, y, color):
-    def stroke(points):
-        canvas.line([(x + a, y + b) for a, b in points], color, 1.3)
-
-    if name == "Europe":
-        stroke([(1, 1), (16, 1), (15, 11), (8.5, 17), (2, 11), (1, 1)])
-        stroke([(5, 8), (8, 11), (13, 5)])
-    elif name == "Middle East":
-        stroke([(1, 15), (1, 9), (4, 5), (8.5, 2), (13, 5), (16, 9), (16, 15)])
-        stroke([(0, 15), (17, 15)])
-        stroke([(6, 15), (6, 10), (8.5, 8), (11, 10), (11, 15)])
-    elif name == "Asia":
-        stroke([(0, 15), (6, 5), (9, 10), (12, 3), (18, 15), (0, 15)])
-        canvas.dot(x + 2, y + 4, 1.4, color)
-    elif name == "International":
-        canvas.ellipse(x, y, x + 17, y + 17, outline=color, width=1.2)
-        canvas.ellipse(x + 4.5, y, x + 12.5, y + 17, outline=color, width=1.1)
-        stroke([(1, 8.5), (16, 8.5)])
-    elif name == "Americas":
-        stroke([(0, 12), (7, 5), (17, 12), (0, 12)])
-        stroke([(2, 15), (15, 15)])
-        stroke([(4, 12), (4, 17)])
-        stroke([(12, 12), (12, 17)])
-    elif name == "Africa":
-        canvas.dot(x + 8.5, y + 8.5, 4, color)
-        for start, end in [
-            ((8.5, 0), (8.5, 2)), ((8.5, 15), (8.5, 17)),
-            ((0, 8.5), (2, 8.5)), ((15, 8.5), (17, 8.5)),
-            ((2, 2), (4, 4)), ((13, 13), (15, 15)),
-            ((15, 2), (13, 4)), ((4, 13), (2, 15)),
-        ]:
-            stroke([start, end])
-    elif name == "Oceania":
-        stroke([(0, 7), (4, 4), (8, 7), (12, 4), (17, 7)])
-        stroke([(0, 12), (4, 9), (8, 12), (12, 9), (17, 12)])
-        stroke([(0, 17), (4, 14), (8, 17), (12, 14), (17, 17)])
+DESK_ICONS = {
+    "Europe": [[(1, 2), (17, 2), (16, 11), (9, 17), (2, 11), (1, 2)],
+               [(5, 9), (8, 12), (13, 6)]],
+    "Middle East": [[(1, 16), (1, 9), (9, 2), (17, 9), (17, 16), (1, 16)],
+                    [(6, 16), (6, 10), (12, 10), (12, 16)]],
+    "Asia": [[(1, 15), (7, 5), (10, 9), (13, 3), (18, 15), (1, 15)]],
+    "International": [[(1, 9), (17, 9)], [(9, 1), (9, 17)]],
+    "Americas": [[(1, 10), (5, 6), (13, 6), (17, 10), (1, 10)],
+                 [(4, 10), (4, 17)], [(14, 10), (14, 17)], [(1, 17), (17, 17)]],
+    "Africa": [[(1, 9), (4, 9)], [(14, 9), (17, 9)], [(9, 1), (9, 4)], [(9, 14), (9, 17)]],
+    "Oceania": [[(1, 6), (5, 3), (9, 6), (13, 3), (17, 6)],
+                [(1, 11), (5, 8), (9, 11), (13, 8), (17, 11)],
+                [(1, 16), (5, 13), (9, 16), (13, 13), (17, 16)]],
+}
 
 
-def region_heading(canvas, name, x, y, width):
+def region_heading(canvas, name, left, top, width):
     color = REGIONS[name]
-    canvas.line([(x, y), (x + width, y)], color, 1.15)
-    canvas.rect(x, y, x + 24, y + 3, color)
-    emblem(canvas, name, x + width - 20, y + 9, color)
-    canvas.text(x, y + 8, name, "serif", 27, color)
+    end = left + width
+    canvas.line([(left, top), (end, top)], color, 1.15)
+    canvas.rect(left, top, left + 23, top + 3, color)
+    canvas.text(left, top + 7, name, "serif", 27, color)
+    x, y = end - 20, top + 9
+    for component in DESK_ICONS[name]:
+        canvas.line([(x + dx, y + dy) for dx, dy in component], color, 1.25)
+    if name == "Africa":
+        canvas.dot(x + 9, y + 9, 4, color)
+    if name == "International":
+        canvas.ellipse(x + 1, y + 1, x + 17, y + 17, outline=color, width=1.2)
 
 
-def brief(canvas, story, x, y, width, show_deck=False):
+def story_type(canvas, story, width, with_deck):
+    headline = canvas.wrap_lines(story["headline"], "bold", 18, width, 2)
+    deck = []
+    if with_deck:
+        deck = canvas.wrap_lines(story["verified_summary"], "sans", 14, width, 2)
+    height = 10 + len(headline) * 16 + len(deck) * 15 + (3 if deck else 0)
+    return headline, deck, height
+
+
+def draw_brief(canvas, story, left, top, headline, deck):
     color = REGIONS[story["region"]]
-    label = story["dateline"].upper()
-    if story["id"] in MARKERS:
-        badge(canvas, x + 7, y + 6, MARKERS[story["id"]][0], color, 6.2)
-        canvas.spaced(x + 18, y - 1, label, 10.25, color, .85)
-    else:
-        canvas.spaced(x, y - 1, label, 10.25, color, .85)
-    lines = canvas.wrapped(x, y + 11, story["headline"], "bold", 18, width, 17, 2, INK)
-    if show_deck:
-        canvas.wrapped(x, y + 14 + lines * 17, story["verified_summary"],
-                       "sans", 14.5, width, 15, 2, MUTED)
+    indent = 0
+    if story["id"] in POINTS:
+        badge(canvas, left + 7, top + 5.5, POINTS[story["id"]][0], color, 5.9)
+        indent = 17
+    canvas.spaced(left + indent, top - 1, story["dateline"].upper(), 10.25, color, .85)
+    canvas.draw_lines(left, top + 10, headline, "bold", 18, 16, INK)
+    canvas.draw_lines(left, top + 13 + len(headline) * 16, deck, "sans", 14, 15, MUTED)
+
+
+def column(canvas, stories, left, start, end, width, with_decks=False):
+    metrics = [story_type(canvas, story, width, with_decks) for story in stories]
+    free_space = end - start - sum(height for _, _, height in metrics)
+    gaps = len(stories) - 1
+    gap = free_space / gaps if gaps else 0
+    if free_space < 0 or (gaps > 0 and gap < 2):
+        raise ValueError(f"Stories in the column starting at {left}, {start} exceed their space")
+    top = start
+    for index, (story, (headline, deck, height)) in enumerate(zip(stories, metrics)):
+        draw_brief(canvas, story, left, top, headline, deck)
+        if index < gaps and gap >= 6:
+            y = top + height + gap / 2 - 1
+            canvas.line([(left, y), (left + width, y)], "#d5cfc0", .65)
+        top += height + gap
 
 
 def brief_section(canvas, stories):
-    canvas.spaced(LEFT, 646, "AROUND THE WORLD", 13, RED, 2.25)
-    grouped = {name: [story for story in stories.values()
-                      if story["region"] == name and story["importance"] != "lead"]
-               for name in REGIONS}
-    for i, name in enumerate(("Europe", "Middle East", "Asia", "International")):
-        x = COLUMNS[i]
-        region_heading(canvas, name, x, 670, COLUMN_WIDTH)
-        for row, story in enumerate(grouped[name]):
-            brief(canvas, story, x, 701 + row * 44, COLUMN_WIDTH)
+    canvas.spaced(LEFT, 645, "AROUND THE WORLD", 13, RED, 2.25)
+    editions = {region: [] for region in REGIONS}
+    for story in stories.values():
+        if story["importance"] != "lead":
+            editions[story["region"]].append(story)
 
-    region_heading(canvas, "Americas", LEFT, 837, COLUMN_WIDTH * 2 + 20)
-    for index, story in enumerate(grouped["Americas"]):
-        x = COLUMNS[index % 2]
-        brief(canvas, story, x, 871 + (index // 2) * 57, COLUMN_WIDTH, show_deck=True)
+    desks = ("Europe", "Middle East", "Asia", "International")
+    for region, left in zip(desks, COLUMNS, strict=True):
+        region_heading(canvas, region, left, 667, COLUMN_WIDTH)
+        column(canvas, editions[region], left, 699, 831, COLUMN_WIDTH)
 
-    for x, name in zip(COLUMNS[2:], ("Africa", "Oceania")):
-        region_heading(canvas, name, x, 837, COLUMN_WIDTH)
-        for row, story in enumerate(grouped[name]):
-            brief(canvas, story, x, 868 + row * 43, COLUMN_WIDTH)
+    region_heading(canvas, "Americas", LEFT, 835, 2 * COLUMN_WIDTH + 20)
+    for index, left in enumerate(COLUMNS[:2]):
+        column(canvas, editions["Americas"][index::2], left, 869, 994, COLUMN_WIDTH, True)
+    for region, left in zip(("Africa", "Oceania"), COLUMNS[2:], strict=True):
+        region_heading(canvas, region, left, 835, COLUMN_WIDTH)
+        column(canvas, editions[region], left, 867, 997, COLUMN_WIDTH)
 
 
 def render():

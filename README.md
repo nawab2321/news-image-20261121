@@ -14,11 +14,11 @@ The front page covers **25 developments across seven desks**. COP31 in Antalya l
 
 The masthead uses **Cormorant Garamond**. The news labels and body use **Barlow Semi Condensed**. The palette pairs warm ivory and midnight blue with muted red, copper, forest green and teal. The illustrations use original geometric drawing, seeded stippling and antialiased line work. The clock, papers, apartment skyline and tanker are editorial symbols. Captions and copy carry the reported facts.
 
-The atlas uses a plate carrée projection of Natural Earth’s public-domain 1:110 million land polygons. Small dots indicate the mapped positions. Short leaders offset numbered markers where they would overlap. The Hormuz marker identifies the strait and the Junín marker uses the Peruvian seismic agency’s epicentre. [Natural Earth land](https://github.com/nvkelso/natural-earth-vector/blob/v5.1.2/geojson/ne_110m_land.geojson) · [Natural Earth terms](https://www.naturalearthdata.com/about/terms-of-use/)
+The atlas uses an Equal Earth projection scaled to a shallow newspaper panel. Its coastlines use Natural Earth’s public-domain 1:110 million land polygons. Small dots and short leaders anchor the numbered markers. The Hormuz marker identifies the strait and the Junín marker uses the Peruvian seismic agency’s epicentre. [Natural Earth land](https://github.com/nvkelso/natural-earth-vector/blob/v5.1.2/geojson/ne_110m_land.geojson) · [Natural Earth terms](https://www.naturalearthdata.com/about/terms-of-use/)
 
 ## Reporting ledger
 
-[research/stories.json](research/stories.json) is the source for story copy, dating, reporting links, cross-checks, mapped locations and illustration concepts. Every row below identifies a Saturday development or first report. The Kryvyi Rih, Junín and Bayelsa entries cover new Saturday tolls after Friday-night or Friday events. The Warsaw item covers Saturday’s NATO response to Friday’s airspace breach. The UK item covers Saturday’s ministerial statement after Friday’s agreement.
+[research/stories.json](research/stories.json) is the source for story copy, datelines, reporting links, cross-checks, mapped locations and illustration concepts. Each record states the basis for its Saturday inclusion and carries the earlier event date when relevant. The table lists Saturday developments and first reports. The Kryvyi Rih, Junín and Bayelsa entries cover new Saturday tolls after Friday events. The Warsaw item covers Saturday’s NATO response to Friday’s airspace breach. The UK item covers Saturday’s ministerial statement after Friday’s agreement.
 
 | Desk | Saturday development | Source |
 | --- | --- | --- |
@@ -68,8 +68,8 @@ Two isolated runs of the kit’s pinned **Python 3.13.17** image completed succe
 | --- | --- |
 | Format | Valid 8-bit RGB PNG |
 | Dimensions | 1024 × 1024 |
-| Size | 626,672 bytes |
-| SHA-256 | `9a121a2983278bc8cb99678f52c8ac8082fefa7af5d48ac155e850a4cda6c3de` |
+| Size | 640,931 bytes |
+| SHA-256 | `59de21ca0c70d18b7be7c37ddf14c6c998374e1d6ebd0c5501f4e33eff88623c` |
 | Visual inspection | 1024, 512, 300 and 256 pixels across |
 
 Code and original artwork are MIT-licensed. The bundled fonts use the SIL Open Font License, with their notices in [assets/fonts](assets/fonts). [Cormorant Garamond](https://github.com/google/fonts/tree/main/ofl/cormorantgaramond) · [Barlow Semi Condensed](https://github.com/google/fonts/tree/main/ofl/barlowsemicondensed)
